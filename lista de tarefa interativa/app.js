@@ -1,5 +1,3 @@
-window.onload = carregarTarefas;
-
 function adicionarTarefa(){
 
     // objetivo da função
@@ -98,11 +96,11 @@ function adicionarTarefa(){
     // adicione uma chamada simples:
     salvarTarefas();
     //🔹 Assim, toda vez que o usuário adiciona uma nova tarefa, ela já é gravada no localStorage.
-    
+
     //limpa o input
     document.getElementById("nova-tarefa").value = "";
 
-    console.log(li);
+    // console.log(li);
 }
 
 // localStorage
@@ -287,3 +285,4 @@ function carregarTarefas(){
 // 3. Concluir tarefa
 // 4. Remover tarefa
 // 5. E garantir que o carregamento (carregarTarefas()) ocorra automaticamente ao abrir a página.
+window.onload = carregarTarefas;
