@@ -1,0 +1,121 @@
+/* 🎨 CSS – Lista de Tarefas Interativa */
+
+/* Reset e base */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  background-color: #f5f7fa;
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 480px;
+}
+
+h1 {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+}
+
+/* Campo de entrada e botão */
+.input-group {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+#nova-tarefa {
+  flex: 1;
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+#btn-adicionar {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#btn-adicionar:hover {
+  background-color: #0056b3;
+}
+
+/* Lista de tarefas */
+#lista-tarefas {
+  list-style: none;
+  margin-top: 1rem;
+}
+
+#lista-tarefas li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  background-color: #fafafa;
+  transition: transform 0.2s;
+}
+
+#lista-tarefas li:hover {
+  transform: scale(1.02);
+}
+
+/* Botões de ação */
+.btn-concluir {
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 0.5rem;
+  transition: background-color 0.3s;
+}
+
+.btn-concluir:hover {
+  background-color: #218838;
+}
+
+.btn-remover {
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-remover:hover {
+  background-color: #b02a37;
+}
+
+/* Estado de tarefa concluída */
+.feita {
+  text-decoration: line-through;
+  opacity: 0.6;
+  background-color: #e6f4ea;
+}
