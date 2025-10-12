@@ -60,7 +60,7 @@ function adicionarTarefa(){
         // 'toggle' adiciona ou remove a classe 'feita' no elemento <li>
         li.classList.toggle("feita");
     });
-    console.log(botaoConcluir);
+    
 
     // 4️⃣ criar o botão remover
     let botaoRemover = document.createElement("button");
@@ -78,7 +78,7 @@ function adicionarTarefa(){
         // Remove completamente o elemento <li> da página
         li.remove();
     });
-    console.log(botaoRemover);
+    
 
 
     // 5️⃣ adicionar os dois botões dentro do <div>
