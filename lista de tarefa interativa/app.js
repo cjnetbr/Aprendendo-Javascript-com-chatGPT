@@ -1,3 +1,5 @@
+window.onload = carregarTarefas;
+
 function adicionarTarefa(){
 
     // objetivo da função
@@ -80,7 +82,6 @@ function adicionarTarefa(){
     });
     
 
-
     // 5️⃣ adicionar os dois botões dentro do <div>
     divBotoes.appendChild(botaoConcluir);
     divBotoes.appendChild(botaoRemover);
@@ -92,14 +93,197 @@ function adicionarTarefa(){
     // Exibir o item na tela.
     document.getElementById("lista-tarefas").appendChild(li);
 
-
-
-
-    // passo 3 — associar os eventos aos botões criados
-    //     Dentro da função adicionarTarefa(),
-    //     logo depois de criar cada botão (botaoConcluir e botaoRemover),
-    //     vamos adicionar:
+    // 1️⃣ Salvamento automático ao adicionar tarefa
+    // Dentro da sua função adicionarTarefa() — logo depois de montar e inserir o <li> na lista —
+    // adicione uma chamada simples:
+    salvarTarefas();
+    //🔹 Assim, toda vez que o usuário adiciona uma nova tarefa, ela já é gravada no localStorage.
+    
+    //limpa o input
+    document.getElementById("nova-tarefa").value = "";
 
     console.log(li);
 }
 
+// localStorage
+//     o localStorage é uma pequena base de dados embutida no navegador do usuário.
+//     ela armazena pares chave → valor, como se fossem pequenas variáveis permanentes.
+
+//     regras importantes:
+
+//     os dados ficam salvos mesmo após fechar o navegador;
+//     tudo é armazenado como texto (string);
+//     podemos converter listas (arrays) para texto com JSON.stringify() e depois reconverter com JSON.parse().
+
+
+// Queremos que salvarTarefas():
+
+// pegue todas as tarefas exibidas na tela (a lista dentro do <ul>),
+// crie uma lista com o texto e o estado de cada uma (feita ou não),
+// salve essa lista no localStorage em formato de texto.
+
+// Pensamento lógico
+
+// Imagine que você tem na tela:
+//     Estudar JS        → não feita
+//     Ler documentação  → feita
+//     Treinar lógica    → não feita
+
+
+// A função precisa transformar isso em algo assim:
+
+//     [
+// //     { texto: "Estudar JS", feita: false },
+// //     { texto: "Ler documentação", feita: true },
+// //     { texto: "Treinar lógica", feita: false }
+//     ]
+
+// Fluxo passo a passo da função
+
+// 1️⃣ Pegar a <ul> onde estão todas as tarefas (id="lista-tarefas").
+// 2️⃣ Pegar todos os <li> dentro dela.
+// 3️⃣ Para cada <li>, extrair:
+
+// o texto (span.textContent);
+
+// se possui a classe .feita.
+// 4️⃣ Montar uma lista (array) com esses dados.
+// 5️⃣ Converter em texto (JSON.stringify).
+// 6️⃣ Salvar no localStorage (localStorage.setItem("tarefas", ...)).
+
+function salvarTarefas(){
+    // 1️⃣ Seleciona todos os itens (li) dentro da lista de tarefas
+    let itens = document.querySelectorAll("#lista-tarefas li");
+    // 2️⃣ Cria um array vazio que vai armazenar os dados das tarefas
+    let tarefas = [];
+
+    // 3️⃣ Percorre cada item da lista e extrai as informações importantes
+    itens.forEach(li => {
+        // Captura o texto da tarefa (dentro do <span>)
+        let texto = li.querySelector("span").textContent;
+        // Verifica se a tarefa possui a classe 'feita'
+        let feita = li.classList.contains("feita");
+        // Adiciona o objeto representando essa tarefa ao array
+        tarefas.push({ texto: texto, feita: feita });
+    });
+
+    // 4️⃣ Converte o array em texto JSON
+    let textoJSON = JSON.stringify(tarefas);
+
+    // 5️⃣ Salva o texto JSON no localStorage
+    localStorage.setItem("tarefas", textoJSON);
+
+    console.log("tarefa Salvas:", tarefas);
+}
+
+// A função carregarTarefas() deve:
+
+// objetivo
+
+// Ler as tarefas salvas no localStorage.
+// Converter o texto JSON de volta em um array.
+// Reconstruir a lista no DOM (criando <li>s, <span>s e botões).
+// Reaplicar o estado “feita” onde for necessário.
+
+// Resumo mental do fluxo
+
+// [Início do site]
+//       ↓
+// Ler localStorage ("tarefas")
+//       ↓
+// Se existir conteúdo:
+//    → converter para array
+//    → reconstruir os <li>
+//    → aplicar classes e eventos
+
+function carregarTarefas(){
+    //1️⃣ Verificar se há dados no localStorage
+    let tarefasJSON = localStorage.getItem("tarefas");
+
+    // Se não houver nada salvo, encerra a função
+    if(tarefasJSON === null){
+        return;
+    }
+
+    // 2️⃣ Converter o texto em um array de objetos
+    // Converte o texto JSON de volta para um array de objetos
+    let tarefas = JSON.parse(tarefasJSON);
+    
+    // 3️⃣ Limpar a lista atual
+    // Limpa a lista antes de reconstruir (evita duplicações)
+    let lista = document.getElementById("lista-tarefas");
+    lista.innerHTML = "";
+    //➡️ Isso garante que, ao recarregar, a lista comece do zero antes de adicionar os itens.
+
+    // 4️⃣ Recriar cada tarefa
+    // Recria cada tarefa salva no localStorage
+    tarefas.forEach(tarefa => {
+        // Cria o <li>
+        let li = document.createElement("li");
+
+        // Se a tarefa estava concluída, reaplica a class
+        if(tarefa.feita){
+            li.classList.add("feita");
+        }
+
+        // Cria o texto
+        let spanTexto = document.createElement("span");
+        spanTexto.textContent = tarefa.texto;
+
+
+        //5️⃣ Criar os botões
+        // Cria o container dos botões
+        let divBotoes = document.createElement("div");
+
+        // Cria o botão concluir
+        let botaoConcluir = document.createElement("button");
+        botaoConcluir.classList.add("btn-concluir");
+        botaoConcluir.textContent = "Concluir";
+
+        // Cria o botão remover
+
+        let botaoRemover = document.createElement("button");
+        botaoRemover.classList.add("btn-remover");
+        botaoRemover.textContent = "Remover";
+
+        //6️⃣ Adicionar os eventos novamente
+        // Eventos de clique nos botões
+        botaoConcluir.addEventListener("click", () => {
+            li.classList.toggle("feita");
+            salvarTarefas()  // salva o novo estado
+        });
+
+        botaoRemover.addEventListener("click", () => {
+            li.remove();
+            salvarTarefas()  // salva o novo estado após a remoção
+
+        // isso garante que as tarefas recarregadas continuem interativas e sincronizadas com o localStorage.
+        });
+
+     
+        //7️⃣ Montar e inserir o item completo
+        //monta a estrutura final
+        divBotoes.appendChild(botaoConcluir);
+        divBotoes.appendChild(botaoRemover);
+        li.appendChild(spanTexto);
+        li.appendChild(divBotoes);
+        // Adiciona o item na lista
+        lista.appendChild(li);
+
+        // ✅ agora, a função carregarTarefas() está pronta.
+        // Ela:
+        // 1. o que está salvo no navegador,
+        // 2. onstrói a lista de forma idêntica,
+        // 3. plica os eventos e estados,
+        // 4. tém tudo sincronizado.
+    });
+        console.log(tarefas);
+}
+
+// integração final
+
+// 1. Conectar o salvarTarefas() às três ações principais do app:
+// 2. Adicionar tarefa
+// 3. Concluir tarefa
+// 4. Remover tarefa
+// 5. E garantir que o carregamento (carregarTarefas()) ocorra automaticamente ao abrir a página.
