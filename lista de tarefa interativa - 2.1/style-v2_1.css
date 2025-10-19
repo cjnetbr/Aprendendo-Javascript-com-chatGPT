@@ -1,0 +1,192 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --background: #f4f7fb;
+  --font-principal: "Poppins", sans-serif;
+  --card-bg: #fff;
+  --title-color: #2c66ce;
+  --text-color: #333333;
+  --color-secondary: #1f4ea8;
+  --border-color: #cccccc;
+  --btn-concluir: #2ecc71;
+  --hover-concluir: #27ae60;
+  --btn-remover: #e74c3c;
+  --hover-remover: #c0392b;
+  --text-footer: #555555;
+}
+
+body {
+  background-color: var(--background);
+  font-family: var(--font-principal);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 90%;
+  max-width: 30rem;
+  padding: 1rem;
+  background-color: var(--card-bg);
+  border-radius: 0.75rem;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 8px 24px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+header h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--title-color);
+}
+
+.input-group {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+#nova-tarefa {
+  flex: 1;
+  background-color: var(--card-bg);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  font-size: 1rem;
+  color: var(--text-color);
+  padding: 0.75rem 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#nova-tarefa:focus {
+  outline: none;
+  border-color: var(--title-color);
+  box-shadow: 0 0 0 2px rgba(44, 102, 206, 0.2);
+}
+
+#btn-adicionar {
+  background-color: var(--title-color);
+  color: var(--card-bg);
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.1s;
+}
+
+#btn-adicionar:hover {
+  background-color: var(--color-secondary);
+}
+
+#btn-adicionar:active {
+  transform: scale(0.98);
+}
+
+#lista-tarefas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+#lista-tarefas li {
+  background-color: var(--card-bg);
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  gap: 0.5rem;
+}
+
+#lista-tarefas li:hover {
+  transform: translateY(-2px);
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 6px 12px;
+}
+
+#lista-tarefas li.feita {
+  text-decoration: line-through;
+  color: #999;
+  opacity: 0.8;
+}
+
+.btn-container {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.btn-concluir,
+.btn-remover {
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--card-bg);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-concluir {
+  background-color: var(--btn-concluir);
+}
+
+.btn-concluir:hover {
+  background-color: var(--hover-concluir);
+}
+
+.btn-concluir:active {
+  transform: scale(0.97);
+}
+
+.btn-remover {
+  background-color: var(--btn-remover);
+}
+
+.btn-remover:hover {
+  background-color: var(--hover-remover);
+}
+
+.btn-remover:active {
+  transform: scale(0.97);
+}
+
+#contadores {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  color: var(--text-footer);
+  font-weight: 500;
+  background-color: var(--card-bg);
+  border-radius: 0.5rem;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 2px 6px;
+}
