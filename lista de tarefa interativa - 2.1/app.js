@@ -1,3 +1,5 @@
+let ultimoConcluidas = 0;
+
 function atualizarContadores() {
   //No JavaScript, criaremos uma função:
   // function atualizarContadores() { ... }
@@ -36,18 +38,61 @@ function atualizarContadores() {
   // Linha: subtração simples em variável.
   let pendentes = total - concluidas;
 
+  const spanTotal = document.getElementById("total");
+  const spanPendentes = document.getElementById("pendentes");
+  const spanConcluidas = document.getElementById("concluidas");
+
   // 5) Atualizar a UI
   // “Escrever esses números nos elementos de contadores.”
   // Pense: “Atribuir textContent para #total, #concluidas, #pendentes.”
   // 3 linhas: cada uma atualiza um textContent com rótulo e número (ex.: "Total: " + total).
 
-  document.getElementById("total").textContent = `Total: = ${total}, `;
-  document.getElementById(
-    "concluidas"
-  ).textContent = `Concluídas: ${concluidas}`;
-  document.getElementById(
-    "pendentes"
-  ).textContent = `Pendentes: ${pendentes}, `;
+  // subistituido (isso):
+
+  // document.getElementById(
+  //   "total"
+  // ).textContent = `Total: = ${total}, `;
+
+  // document.getElementById(
+  //   "concluidas"
+  // ).textContent = `Concluídas: ${concluidas}`;
+
+  // document.getElementById(
+  //   "pendentes"
+  // ).textContent = `Pendentes: ${pendentes}, `;
+  // (por:)
+  spanTotal.textContent = `Total: = ${total}, `;
+  spanPendentes.textContent = `Pendentes: ${pendentes}, `;
+  spanConcluidas.textContent = `Concluídas: ${concluidas}`;
+
+  //lógica da animação (pulse)
+  //“se o número de concluídas aumentou em relação à última atualização, aplicamos a classe .pulse temporariamente”.
+
+  // 1️⃣ Se o número de concluídas aumentou em relação à última atualização
+  if (concluidas > ultimoConcluidas) {
+    // 2️⃣ Adiciona a classe de animação
+    spanConcluidas.classList.add("pulse");
+
+    // 3️⃣ Remove a classe depois de 400ms para permitir repetir a animação
+    setTimeout(() => {
+      spanConcluidas.classList.remove("pulse");
+    }, 400);
+  }
+
+  console.log("Concluídas:", concluidas, "Último valor:", ultimoConcluidas);
+
+  // 4️⃣ Atualiza o valor de referência para a próxima comparação
+  ultimoConcluidas = concluidas;
+
+  // Aplicar classes condicionais
+  // aqui entra o novo aprendizado:
+  // usar .classList.toggle(classe, condição),
+  // que adiciona a classe se a condição for verdadeira e a remove se for falsa.
+
+  //essa linha sozinha já controla o estado visual conforme os números mudam.
+  spanPendentes.classList.toggle("ativo", pendentes > 0);
+  spanPendentes.classList.toggle("zerado", pendentes === 0);
+  spanConcluidas.classList.toggle("positivo", concluidas > 0);
 }
 
 function ativarEdicao(spanTexto, li) {
