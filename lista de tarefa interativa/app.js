@@ -86,6 +86,7 @@ function adicionarTarefa(){
 
     // 6️⃣ anexar o <span> e o <div> dentro do <li>
     li.appendChild(spanTexto);
+
     li.appendChild(divBotoes);
 
     // Exibir o item na tela.
@@ -227,7 +228,6 @@ function carregarTarefas(){
         // Cria o texto
         let spanTexto = document.createElement("span");
         spanTexto.textContent = tarefa.texto;
-
 
         //5️⃣ Criar os botões
         // Cria o container dos botões

@@ -1,3 +1,41 @@
+function ativarEdicao(spanTexto, li) {
+    spanTexto.addEventListener("dblclick", () => {
+        const textoAtual = spanTexto.textContent;
+        const inputEdicao = document.createElement("input");
+        inputEdicao.type = "text";
+        inputEdicao.className = "input-edicao";
+        inputEdicao.value = textoAtual;
+
+        li.replaceChild(inputEdicao, spanTexto);
+        inputEdicao.focus();
+        inputEdicao.setSelectionRange(0, inputEdicao.value.length);
+
+        function salvarEdicao() {
+            if (!li.contains(inputEdicao)) return;
+            const novoTexto = inputEdicao.value.trim() || textoAtual;
+
+            const novoSpan = document.createElement("span");
+            novoSpan.textContent = novoTexto;
+
+            // 🟢 reaplica a função aqui, chamando ela mesma
+            ativarEdicao(novoSpan, li);
+
+            li.replaceChild(novoSpan, inputEdicao);
+            salvarTarefas();
+        }
+
+        inputEdicao.addEventListener("blur", salvarEdicao);
+        inputEdicao.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                salvarEdicao();
+            }
+        });
+    });
+}
+
+
+
 function adicionarTarefa(){
 
     // objetivo da função
@@ -42,7 +80,102 @@ function adicionarTarefa(){
     let spanTexto = document.createElement("span");
     spanTexto.textContent = textoTarefa;
 
+    //Editar a tarefa
+    //1) Escutar o duplo clique no texto
+    //Ouve o duplo clique no texto da tarefa
+    //=== Trecho substituido pela funão ativarEdição() ===
+    // spanTexto.addEventListener('dblclick', () => {
+    //     console.log("Duplo clique detectado");
+
+    //     // 2) Guarda o texto atual para colocar dentro do input
+    //     const textoAtual = spanTexto.textContent;
+    //     //3) Criar o <input> de edição
+    //     const inputEdicao = document.createElement('input');
+    //     inputEdicao.type='text';
+    //     inputEdicao.className = 'input-edicao';
+    //     inputEdicao.value = textoAtual
+
+    //     // 4) Substitui o <span> pelo <input> dentro do <li>
+    //     li.replaceChild(inputEdicao, spanTexto);
+
+    //     //5) Dá foco e seleciona o texto para facilitar a edição
+    //     inputEdicao.focus();
+    //     inputEdicao.setSelectionRange(0, inputEdicao.value.length)
+
+    //     // 🧠 Objetivo
+
+    //     // dar continuidade ao código  dentro do dblclick, adicionando:
+    //     // - a detecção das ações de salvar (Enter / blur),
+    //     // - a recriação do <span> com o novo texto,
+    //     // - a atualização do localStorage.
+
+    //     // 1.  Ouvir quando o usuário pressiona Enter (keydown).
+    //     // 2.  Ouvir quando o campo perde o foco (blur).
+    //     // 3. Função interna de salvar que:
+    //     //     - Lê o texto novo do input.
+    //     //     - Valida se não está vazio.
+    //     //     - Cria um novo <span> com o novo texto.
+    //     //     - Reanexa o evento dblclick nesse novo span.
+    //     //     - Substitui o <input> pelo <span>.
+    //     //     - Chama salvarTarefas().
+        
+    //     // 6️) Função interna para salvar a edição
+    //     function salvarEdicao(){
+    //         // 🔒 Evita duplicação de execução
+    //         if (!li.contains(inputEdicao)) return;
+
+    //         const novoTexto = inputEdicao.value.trim();
+    //         // Se estiver vazio, restaura o texto antigo
+    //         // if(novoTexto === ""){
+    //         //     inputEdicao.value = textoAtual;
+    //         // }
+    //         const textoFinal = novoTexto === "" ? textoAtual : novoTexto;
+
+    //         // Cria novo <span> com o texto final
+    //         const novaSpan = document.createElement('span');
+    //         // novaSpan.textContent = novoTexto === "" ? textoAtual : novoTexto;
+    //         novaSpan.textContent = textoFinal;
+
+    //         // Reanexa o mesmo evento de edição
+    //         novaSpan.addEventListener("dblclick", arguments.callee);
+
+    //         // Substitui o input pelo novo span
+    //         li.replaceChild(novaSpan, inputEdicao);
+
+    //         // Salva no localStorage
+    //         salvarTarefas();
+    //     }
+
+    //     // 7️) Salva automaticamente ao perder o foco
+    //     inputEdicao.addEventListener("blur", salvarEdicao);
+
+    //     // 8️) Salva ao pressionar Enter
+    //     inputEdicao.addEventListener("keydown", (event) => {
+    //         if (event.key === "Enter"){
+    //             event.preventDefault(); // Evita blur duplicado
+    //             salvarEdicao();
+    //         }
+    //     });
+
+    //     // ✅ Fluxo completo dentro do dblclick
+    //     // quando o usuário:
+
+    //     // dá duplo clique → <span> vira <input>,
+    //     // edita → pressiona Enter ou sai do campo,
+    //     // o texto novo substitui o antigo e o localStorage é atualizado.
+
+    // });
+
     // 2️⃣ criar um <div> para abrigar os botões
+    //=== Trecho substituido pela funão  ativarEdição() ===
+    // O que isso faz
+    // a função ativarEdicao() define todo o comportamento de edição,
+    // e você pode reaplicá-la sempre que recriar um <span> novo,
+    // garantindo que o duplo clique funcione infinitas vezes sem erro.
+    
+    ativarEdicao(spanTexto, li);
+
+
     let divBotoes = document.createElement("div");
 
     // 3️⃣ criar o botão concluir
@@ -228,6 +361,96 @@ function carregarTarefas(){
         let spanTexto = document.createElement("span");
         spanTexto.textContent = tarefa.texto;
 
+        //Editar a tarefa
+        //1) Escutar o duplo clique no texto
+        //Ouve o duplo clique no texto da tarefa
+        //=== Trecho substituido pela funão  ativarEdição() ===
+        // spanTexto.addEventListener('dblclick', () => {
+        // console.log("Duplo clique detectado");
+
+        //     // 2) Guarda o texto atual para colocar dentro do input
+        //     const textoAtual = spanTexto.textContent;
+        //     //3) Criar o <input> de edição
+        //     const inputEdicao = document.createElement('input');
+        //     inputEdicao.type='text';
+        //     inputEdicao.className = 'input-edicao';
+        //     inputEdicao.value = textoAtual
+
+        //     // 4) Substitui o <span> pelo <input> dentro do <li>
+        //     li.replaceChild(inputEdicao, spanTexto);
+
+        //     //5) Dá foco e seleciona o texto para facilitar a edição
+        //     inputEdicao.focus();
+        //     inputEdicao.setSelectionRange(0, inputEdicao.value.length)
+
+        //     // 🧠 Objetivo
+
+        //     // dar continuidade ao código  dentro do dblclick, adicionando:
+        //     // - a detecção das ações de salvar (Enter / blur),
+        //     // - a recriação do <span> com o novo texto,
+        //     // - a atualização do localStorage.
+
+        //     // 1.  Ouvir quando o usuário pressiona Enter (keydown).
+        //     // 2.  Ouvir quando o campo perde o foco (blur).
+        //     // 3. Função interna de salvar que:
+        //     //     - Lê o texto novo do input.
+        //     //     - Valida se não está vazio.
+        //     //     - Cria um novo <span> com o novo texto.
+        //     //     - Reanexa o evento dblclick nesse novo span.
+        //     //     - Substitui o <input> pelo <span>.
+        //     //     - Chama salvarTarefas().
+            
+        //     // 6️) Função interna para salvar a edição
+        //     function salvarEdicao(){
+        //         // 🔒 Evita duplicação de execução
+        //         if (!li.contains(inputEdicao)) return;
+
+        //         const novoTexto = inputEdicao.value.trim();
+        //         // Se estiver vazio, restaura o texto antigo
+        //         // if(novoTexto === ""){
+        //         //     inputEdicao.value = textoAtual;
+        //         // }
+        //         const textoFinal = novoTexto === "" ? textoAtual : novoTexto;
+
+        //         // Cria novo <span> com o texto final
+        //         const novaSpan = document.createElement('span');
+        //         novaSpan.textContent = textoFinal;
+
+        //         // Reanexa o mesmo evento de edição
+        //         novaSpan.addEventListener("dblclick", arguments.callee);
+
+        //         // Substitui o input pelo novo span
+        //         li.replaceChild(novaSpan, inputEdicao);
+
+        //         // Salva no localStorage
+        //         salvarTarefas();
+        //     }
+
+        //     // 7️) Salva automaticamente ao perder o foco
+        //     inputEdicao.addEventListener("blur", salvarEdicao);
+
+        //     // 8️) Salva ao pressionar Enter
+        //     inputEdicao.addEventListener("keydown", (event) => {
+        //         if (event.key === "Enter"){
+        //             event.preventDefault(); // Evita blur duplicado
+        //             salvarEdicao();
+        //         }
+        //     });
+
+        //     // ✅ Fluxo completo dentro do dblclick
+        //     // quando o usuário:
+
+        //     // dá duplo clique → <span> vira <input>,
+        //     // edita → pressiona Enter ou sai do campo,
+        //     // o texto novo substitui o antigo e o localStorage é atualizado.
+        // });    
+        //=== Trecho substituido pela funão  ativarEdição() ===
+        // O que isso faz
+        // a função ativarEdicao() define todo o comportamento de edição,
+        // e você pode reaplicá-la sempre que recriar um <span> novo,
+        // garantindo que o duplo clique funcione infinitas vezes sem erro.
+        ativarEdicao(spanTexto, li);
+
 
         //5️⃣ Criar os botões
         // Cria o container dos botões
@@ -275,7 +498,8 @@ function carregarTarefas(){
         // 3. plica os eventos e estados,
         // 4. tém tudo sincronizado.
     });
-        console.log(tarefas);
+    
+    console.log(tarefas);
 }
 
 // integração final

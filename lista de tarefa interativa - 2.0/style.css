@@ -119,3 +119,12 @@ h1 {
   opacity: 0.6;
   background-color: #e6f4ea;
 }
+
+
+/* apenas sugestão para quando criar a classe */
+.input-edicao {
+  padding: 6px 8px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  width: 57%;
+}
