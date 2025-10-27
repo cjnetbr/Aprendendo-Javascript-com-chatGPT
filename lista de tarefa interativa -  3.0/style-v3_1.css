@@ -131,3 +131,58 @@ Para ajustar busca e filtros em telas menores: */
     font-size: 0.95em;
   }
 }
+
+/* Realce rápido quando marcada como feita */
+@keyframes concluidaPulse {
+  0% {
+    background-color: #e8ffe8;
+    transform: scale(1);
+  }
+  50% {
+    background-color: #b7f0b7;
+    transform: scale(1.02);
+  }
+  100% {
+    background-color: #fff;
+    transform: scale(1);
+  }
+}
+
+#lista-tarefas li.feita {
+  animation: concluidaPulse 0.4s ease;
+}
+
+/* Animação de entrada ao adicionar nova tarefa */
+.fade.nova {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: novaEntrada 0.4s ease forwards;
+}
+
+@keyframes novaEntrada {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animação ao remover */
+.fade.removendo {
+  opacity: 0;
+  transform: scale(0.98);
+  max-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  transition: all 0.35s ease-in;
+}
+
+/* Transição de modo claro/escuro
+Já existe no teu CSS, mas podemos suavizar ainda mais adicionando no body: */
+body {
+  transition: background-color 0.4s ease, color 0.4s ease;
+}

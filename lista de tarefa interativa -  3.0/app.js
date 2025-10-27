@@ -357,7 +357,10 @@ function adicionarTarefa() {
   // Ao clicar no botão “Remover”, apaga a tarefa da lista
   botaoRemover.addEventListener("click", () => {
     // Remove completamente o elemento <li> da página
-    li.remove();
+    // li.remove(); v3.0
+    // anima antes de remover v3.1
+    li.classList.add("removendo");
+    setTimeout(() => li.remove(), 350);
 
     //chamada da função atualizarContadores()
     atualizarContadores();
@@ -374,6 +377,11 @@ function adicionarTarefa() {
   // Exibir o item na tela.
   document.getElementById("lista-tarefas").appendChild(li);
 
+  // Adiciona animação de entrada
+  li.classList.add("nova");
+  setTimeout(() => li.classList.remove("nova"), 400);
+  // A classe .nova ativa uma pequena animação CSS (transform + opacity), e é removida após 400ms para não interferir depois.
+
   //Chamada da função atualizarContadores();
   atualizarContadores();
 
@@ -388,7 +396,10 @@ function adicionarTarefa() {
   //limpa o input
   document.getElementById("nova-tarefa").value = "";
 
-  // console.log(li);
+  // Após adicionar uma tarefa, devolvemos o foco ao campo de input:
+  document.getElementById("nova-tarefa").focus();
+
+  // // console.log(li);
 }
 
 // localStorage
