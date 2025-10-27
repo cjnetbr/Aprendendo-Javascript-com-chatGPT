@@ -202,6 +202,8 @@ function adicionarTarefa() {
   // document.getElementById("lista-tarefas").appendChild(novaTarefa);
   //console.log(novaTarefa);
   let li = document.createElement("li");
+  // 🔽 habilita transições
+  li.classList.add("fade");
 
   // Incluir botões de “Concluir” e “Remover” dentro de cada <li>.
   // objetivo
@@ -504,6 +506,8 @@ function carregarTarefas() {
   tarefas.forEach((tarefa) => {
     // Cria o <li>
     let li = document.createElement("li");
+    // 🔽 habilita transições para itens carregados do storage
+    li.classList.add("fade");
 
     // Se a tarefa estava concluída, reaplica a class
     if (tarefa.feita) {
@@ -692,13 +696,16 @@ function aplicarFiltroEBusca() {
     // passaBusca (baseado no nome digitado)
 
     // combinar condições e decidir exibição
-    // a tarefa será mostrada somente se passar em ambos os testes:
+    // a tarefa será mostrada somente se passar em ambos os testes: v3.0
 
-    if (passaFiltro && passaBusca) {
-      tarefa.style.display = "";
-    } else {
-      tarefa.style.display = "none";
-    }
+    // if (passaFiltro && passaBusca) {
+    //   tarefa.style.display = "";
+    // } else {
+    //   tarefa.style.display = "none";
+    // }
+    const mostrar = passaFiltro && passaBusca;
+    // Alterna apenas classes; CSS cuidará do efeito v 3.1
+    tarefa.classList.toggle("oculta", !mostrar);
   });
 
   atualizarContadores();

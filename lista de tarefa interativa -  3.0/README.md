@@ -1,74 +1,81 @@
-
-# 🧭 README – Versão 3.0: Filtros e Busca Instantânea
+# 🌈 README – Versão 3.1: Design e UX da Lista de Tarefas
 
 ## 🎯 Objetivo
-Ampliar as funcionalidades da aplicação **Lista de Tarefas Interativa**, adicionando filtros dinâmicos e busca instantânea para que o usuário visualize apenas as tarefas desejadas.  
-O foco é aprofundar o raciocínio lógico e a manipulação eficiente do **DOM** e de **arrays** usando JavaScript puro.
+
+Melhorar a **experiência do usuário (UX)** e o **design visual (UI)** da aplicação "Lista de Tarefas Interativa", tornando a interface mais fluida, responsiva e agradável sem perder o foco no aprendizado de **JavaScript** e **CSS moderno**.
 
 ---
 
 ## 🧱 Estrutura Básica
-**HTML (`index.html`)**
-- Campo de entrada para nova tarefa (`#nova-tarefa`)
-- Botão **Adicionar**
-- Área de exibição das tarefas (`#lista-tarefas`)
-- Rodapé com contadores (`#contadores`)
-- *(Agora também conterá a barra de filtros e o campo de busca.)*
 
-**CSS (`style-v2_1.css`)**
-- Mantém variáveis, responsividade e modo escuro automático
-- Classes `.feita`, `.ativo`, `.pulse`, `.btn-container` etc.
-- Nesta versão, incluirá ajustes visuais para os filtros e a barra de busca.
+**HTML (`index.html`)**
+
+- Mantém todos os elementos da versão 3.0 (filtros e busca incluídos);
+- Nenhuma alteração estrutural, apenas ajustes visuais;
+- Classes e IDs existentes serão reutilizados para aplicar estilos e efeitos.
+
+**CSS (`style-v3_1.css`)**
+
+- Novo arquivo ou extensão do anterior (`style-v3_1.css`);
+- Adição de animações e transições suaves;
+- Realce de elementos interativos (botões, hover, input de busca);
+- Implementação de modo escuro e responsividade aprimorada.
 
 **JavaScript (`app.js`)**
-- Funções consolidadas das versões anteriores:
-  - `adicionarTarefa()`
-  - `salvarTarefas()`
-  - `carregarTarefas()`
-  - `atualizarContadores()`
-  - `ativarEdicao()`
-- Acrescentaremos novas variáveis e funções:
-  - `filtroAtual` e `termoBusca`
-  - `aplicarFiltroEBusca()`
-  - Eventos para filtros e busca instantânea
+
+- Mantém a lógica de filtros e busca;
+- Pequenas adições para alternar classes visuais (ex.: adicionar/remover `.oculta` em vez de `display:none`);
+- Possível criação de função `alternarModoEscuro()` para estudo.
 
 ---
 
-## 🧠 Conceitos trabalhados
-| Conceito JS | Aplicação prática |
-|--------------|------------------|
-| `filter()` | Criar listas temporárias baseadas em condições |
-| `includes()` | Busca textual insensível a maiúsculas/minúsculas |
-| `addEventListener('input')` | Reatividade instantânea ao digitar |
-| `localStorage` | Guardar o último filtro usado |
-| `classList` / `style.display` | Mostrar / ocultar elementos dinamicamente |
-| `forEach()` | Iterar sobre tarefas exibidas |
-| Funções puras | Calcular o que exibir sem modificar os dados originais |
+## 🧠 Conceitos Trabalhados
+
+| Conceito                                 | Aplicação Prática                                      |
+| ---------------------------------------- | ------------------------------------------------------ |
+| Transições (`transition`)                | Animações suaves ao mostrar/ocultar tarefas            |
+| Transformações (`transform`)             | Efeitos sutis em hover/click                           |
+| Pseudo-elementos (`::before`, `::after`) | Ícones decorativos e realces visuais                   |
+| Media Queries                            | Responsividade (ajuste em telas menores)               |
+| Classes CSS dinâmicas                    | Mostrar/ocultar com `.oculta` em vez de `display:none` |
+| `classList.toggle()`                     | Alternância de estado visual via JS                    |
 
 ---
 
-## ⚙️ Funcionalidades da versão 3.0
-### 🔹 1. Filtros dinâmicos
-Permitir alternar entre:
-- **Todas**
-- **Pendentes**
-- **Concluídas**
+## ⚙️ Funcionalidades Visuais Planejadas
 
-### 🔹 2. Busca instantânea
-Campo `<input id="busca">` que filtra tarefas conforme o usuário digita.
+### 🎨 1. Transições Suaves
 
-### 🔹 3. Persistência do filtro
-O último filtro selecionado é armazenado em `localStorage`.
+As tarefas agora desaparecem com fade-out e aparecem com fade-in usando CSS (`opacity` + `transition`).
 
-### 🔹 4. Nova função: `aplicarFiltroEBusca()`
-Responsável por combinar filtro + busca e controlar a exibição de cada item.
+### 🖱️ 2. Realce de Botões Ativos
+
+O botão do filtro selecionado recebe destaque visual (`.ativo`), com cor, sombra e animação de clique.
+
+### 🔍 3. Campo de Busca Aprimorado
+
+Inclui ícone de lupa e destaque no foco (`:focus-within`), com borda animada.
+
+### 🌙 4. Modo Escuro Automático (opcional)
+
+Aplica `prefers-color-scheme: dark` para trocar automaticamente as cores com base nas preferências do sistema.
+
+### 📱 5. Responsividade
+
+Os filtros e o campo de busca se adaptam ao tamanho da tela, empilhando-se em modo mobile.
 
 ---
 
-## 🧩 Etapas de implementação guiada
-1️⃣ Adicionar HTML — inserir a barra de filtros (3 botões) e campo de busca.  
-2️⃣ Criar as variáveis de estado no topo do `app.js`: `filtroAtual` e `termoBusca`.  
-3️⃣ Construir a função `aplicarFiltroEBusca()`, linha por linha.  
-4️⃣ Conectar os eventos (cliques e digitação).  
-5️⃣ Integrar ao fluxo existente.  
-6️⃣ Testar combinações de busca + filtro.
+## 🧩 Etapas de Implementação Guiada
+
+1️⃣ **Planejar a lógica visual** – Definir o comportamento desejado (fade, hover, foco).  
+2️⃣ **Criar classes CSS** (`.oculta`, `.fade`, `.ativo`, `.dark-mode`).  
+3️⃣ **Ajustar o JavaScript** para usar classes em vez de `display:none`.  
+4️⃣ **Aplicar transições e animações** no CSS.  
+5️⃣ **Melhorar UX** com responsividade e feedback visual.  
+6️⃣ **Testar** todas as interações (adicionar, concluir, filtrar, buscar).
+
+---
+
+📘 **Conclusão**
+Esta versão 3.1 solidifica o aprendizado de **CSS dinâmico e interação visual via JavaScript**, preparando o terreno para a futura **Versão 4.0**, onde exploraremos **modularização e APIs assíncronas (fetch)**.
