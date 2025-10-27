@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lista de Tarefas Interativa</title>
+    <link rel="stylesheet" href="./style-v2_1.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header>
+        <h1>Lista de Tarefas Interativa - 4.0</h1>
+      </header>
+      <!-- Campo de entrada e botão de adicionar -->
+      <div class="input-group">
+        <input
+          type="text"
+          id="nova-tarefa"
+          placeholder="Digite uma nova tarefa"
+        />
+        <button onclick="adicionarTarefa()" id="btn-adicionar">
+          Adicionar
+        </button>
+      </div>
+
+      <div class="filtros">
+        <div class="botoes-filtro">
+          <button data-filter="todas" class="ativo">Todas</button>
+          <button data-filter="pendentes">Pendentes</button>
+          <button data-filter="concluidas">Concluídas</button>
+        </div>
+        <input type="text" id="busca" placeholder="Buscar tarefa..." />
+      </div>
+
+      <!-- Lista de tarefas -->
+
+      <ul id="lista-tarefas"></ul>
+
+      <footer id="contadores">
+        <span id="total">Total: 0</span>
+        <span id="pendentes">Pendentes: 0</span>
+        <span id="concluidas">Concluídas: 0</span>
+      </footer>
+    </main>
+
+    <!-- <script src="app.js"></script>  atá a V3.1-->
+    <script type="module" src="./js/app.js"></script>
+    <!-- (V4.0) Etapa 4.0.1 — Habilitar ES Modules (sem mudar comportamento) -->
+    Eta
+  </body>
+</html>

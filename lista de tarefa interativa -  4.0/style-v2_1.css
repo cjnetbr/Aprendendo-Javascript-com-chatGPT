@@ -1,0 +1,265 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("./style-v3_1.css");
+/* ==========================
+   1. VARIÁVEIS E RESET GLOBAL
+   ========================== */
+
+:root {
+  --background: #f4f7fb; /* Fundo geral suave */
+  --card-bg: #ffffff; /* Fundo de containers e listas */
+  --text-color: #333333; /* Texto principal */
+  --text-muted: #555555; /* Texto secundário (ex: rodapé) */
+  --primary: #2c66ce; /* Cor de destaque (botões e foco) */
+  --success: #2ecc71; /* Ações positivas */
+  --danger: #e74c3c; /* Ações negativas */
+  --shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px; /* sombra padrão */
+  --font-principal: "Poppins", sans-serif;
+  --pendentes-ativo: #f1c40f;
+  --pendentes-zerado: #aaaaaa;
+  --concluidas-positivo: #2ecc71;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ==========================
+   2. ESTRUTURA GERAL
+   ========================== */
+body {
+  background-color: var(--background);
+  font-family: var(--font-principal);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 90%;
+  max-width: 30rem;
+  padding: 2rem;
+  background-color: var(--card-bg);
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow);
+}
+
+/* ==========================
+   3. CABEÇALHO
+   ========================== */
+
+header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+header h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+/* ==========================
+   4. ÁREA DE ENTRADA
+   ========================== */
+.input-group {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+#nova-tarefa {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  color: var(--text-color);
+  background-color: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#nova-tarefa:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(44, 102, 206, 0.2);
+}
+
+#btn-adicionar {
+  background-color: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+#btn-adicionar:hover {
+  background-color: #1f4ea8;
+}
+
+#btn-adicionar:active {
+  transform: scale(0.98);
+}
+
+/* ==========================
+   5. LISTA DE TAREFAS
+   ========================== */
+#lista-tarefas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+#lista-tarefas li {
+  background-color: #fff;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#lista-tarefas li:hover {
+  transform: translateY(-2px);
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 6px 12px;
+}
+
+#lista-tarefas li.feita {
+  text-decoration: line-through;
+  color: #999;
+  opacity: 0.8;
+}
+
+/* ==========================
+   6. BOTÕES DE AÇÃO
+   ========================== */
+.btn-container {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.btn-concluir,
+.btn-remover {
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-concluir {
+  background-color: var(--success);
+}
+.btn-concluir:hover {
+  background-color: #27ae60;
+}
+
+.btn-remover {
+  background-color: var(--danger);
+}
+.btn-remover:hover {
+  background-color: #c0392b;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+/* ==========================
+   7. RODAPÉ
+   ========================== */
+#contadores {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  background-color: var(--card-bg);
+  border-radius: 0.5rem;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 2px 6px;
+}
+
+/* ==========================
+   8. MODO ESCURO E TRANSIÇÕES
+   ========================== */
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #1e1f22;
+    --card-bg: #2c2d31;
+    --text-color: #f4f4f4;
+    --text-muted: #bbb;
+    --shadow: rgba(0, 0, 0, 0.5) 0px 4px 12px;
+  }
+}
+
+/* ==========================
+   9. CONTADORES DINÂMICOS
+   ========================== */
+
+#pendentes.ativo {
+  color: var(--pendentes-ativo);
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+#pendentes.zerado {
+  color: var(--pendentes-zerado);
+  font-style: italic;
+  transition: color 0.3s ease;
+}
+
+#concluidas.positivo {
+  color: var(--concluidas-positivo);
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+/* Classe temporária para dar um efeito visual rápido (brilho ou pulso)
+quando o número de concluídas aumenta */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+#concluidas.pulse {
+  animation: pulse 0.4s ease;
+}

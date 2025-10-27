@@ -1,0 +1,188 @@
+/* --- v3.1: transições e UX --- */
+.fade {
+  transition: all 0.35s ease-in-out;
+  opacity: 1;
+  max-height: 6.25rem;
+  margin: 0.5rem 0;
+  overflow: hidden;
+}
+
+/* Estado oculto: some suavemente e colapsa espaço */
+/* .fade.oculta {
+  opacity: 0;
+  max-height: 0;
+  margin: 0;
+  padding: 0;
+} */
+
+.fade.oculta {
+  opacity: 0;
+  max-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transform: scale(0.98);
+}
+
+/* Corrige conflito entre .feita e .oculta */
+.fade.feita.oculta {
+  opacity: 0 !important;
+  max-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none;
+  text-decoration: none !important; /* remove o risco quando oculta */
+}
+
+/* Filtros e botões */
+
+.filtros {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.botoes-filtro button {
+  cursor: pointer;
+  border: none;
+  background: #e0e0e0;
+  color: #333;
+  padding: 0.5em 1em;
+  border-radius: 4px;
+  transition: background 0.25s, transform 0.2s;
+}
+
+.botoes-filtro button:hover {
+  background: #d0d0d0;
+  transform: translateY(-2px);
+}
+.botoes-filtro button.ativo {
+  background: #2c66ce;
+  color: white;
+}
+
+/* Campo de busca */
+#busca {
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  padding: 0.4em 0.8em;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+#busca:focus {
+  border-color: #2c66ce;
+  box-shadow: 0 0 6px rgba(44, 102, 206, 0.4);
+  outline: none;
+}
+
+/* 3️⃣ Modo escuro automático 🌙 */
+/* Adicionar suporte automático (com base no sistema operacional): */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+  }
+
+  .botoes-filtro button {
+    background: #333;
+    color: #ddd;
+  }
+
+  .botoes-filtro button.ativo {
+    background: #2c66ce;
+    color: #fff;
+  }
+
+  #busca {
+    background-color: #1f1f1f;
+    border-color: #444;
+    color: #ddd;
+  }
+
+  #busca:focus {
+    border-color: #2c66ce;
+    box-shadow: 0 0 6px rgba(44, 102, 206, 0.5);
+  }
+
+  li.fade {
+    background-color: #1e1e1e;
+    border-bottom: 1px solid #333;
+  }
+}
+
+/* 4️⃣ Responsividade básica
+Para ajustar busca e filtros em telas menores: */
+@media (max-width: 600px) {
+  #filtros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    justify-content: center;
+  }
+
+  #busca {
+    width: 100%;
+    margin-top: 0.5em;
+  }
+
+  #lista-tarefas li {
+    font-size: 0.95em;
+  }
+}
+
+/* Realce rápido quando marcada como feita */
+@keyframes concluidaPulse {
+  0% {
+    background-color: #e8ffe8;
+    transform: scale(1);
+  }
+  50% {
+    background-color: #b7f0b7;
+    transform: scale(1.02);
+  }
+  100% {
+    background-color: #fff;
+    transform: scale(1);
+  }
+}
+
+#lista-tarefas li.feita {
+  animation: concluidaPulse 0.4s ease;
+}
+
+/* Animação de entrada ao adicionar nova tarefa */
+.fade.nova {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: novaEntrada 0.4s ease forwards;
+}
+
+@keyframes novaEntrada {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animação ao remover */
+.fade.removendo {
+  opacity: 0;
+  transform: scale(0.98);
+  max-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  transition: all 0.35s ease-in;
+}
+
+/* Transição de modo claro/escuro
+Já existe no teu CSS, mas podemos suavizar ainda mais adicionando no body: */
+body {
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
