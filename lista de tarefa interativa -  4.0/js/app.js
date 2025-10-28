@@ -1,732 +1,185 @@
-let ultimoConcluidas = 0;
+// A) Imports — declarar dependências (micro-bloco 1)
 
-//1) Variáveis de estado
-let filtroAtual = localStorage.getItem("filtroAtual") || "todas"; //começa com o que estiver salvo no localStorage (ou 'todas').
-let termoBusca = ""; // armazena o texto digitado na busca
+import { loadLocal, saveLocal } from "./modules/storage.js";
+import { criar } from "./modules/tarefas.js";
+import { qs, renderLista } from "./modules/ui.js";
 
-//2) Pegar os elementos do DOM
-const areaFiltros = document.querySelector(".filtros");
-const botoesFiltro = document.querySelectorAll(".filtros [data-filter]");
-const inputBusca = document.querySelector("#busca");
+// Linha a linha
+// import { loadLocal, saveLocal } ... → trará as funções de persistência (ler/salvar).
+// import { criar } ... → função de regra de negócio para fabricar o objeto tarefa.
+// import { qs, renderLista } ... → utilitário de seleção de elementos e render da lista.
 
-//3) Marcar o botão ativo inicial (sincronizar UI com o estado)
-// Deixa o botão correto com a classe .ativo ao carregar
-botoesFiltro.forEach((btn) => {
-  const ehAtual = btn.dataset.filter === filtroAtual;
-  btn.classList.toggle("ativo", ehAtual);
-});
+// B) Estado em memória + função de render (micro-bloco 2)
 
-//4) Eventos dos botões de filtro
-//Para cada botão, adicione um handler de clique:
+let lista = [];
 
-botoesFiltro.forEach((btn) => {
+function syncRender() {
+  const ul = qs("#lista-tarefas");
+  renderLista(ul, lista);
+}
+//Explicação Linha a linha
+
+// - let lista = []; → variável do módulo que guarda todas as tarefas correntes.
+// - function syncRender() → função utilitária para re-renderizar a <ul> usando o estado lista.
+// - const ul = qs('#lista-tarefas'); → pega a <ul> do HTML (mesmo id que você já usa).
+// - renderLista(ul, lista); → delega ao módulo de UI a montagem dos <li>.
+
+//C) Init — carregar do storage e renderizar (micro-bloco 3)
+
+function init() {
+  // 1) Carrega o storage
+  lista = loadLocal();
+
+  // 2) primeira renderização
+  syncRender();
+
+  //Explicação Linha a linha
+  // - function init() → ponto único de inicialização da app.
+  // - lista = loadLocal(); → traz as tarefas já salvas no navegador (ou []).
+  // - syncRender(); → mostra na tela o que foi carregado.
+}
+
+// D) Ligar SOMENTE o “Adicionar” (micro-bloco 4)
+function ligarAdicionar() {
+  const input = qs("#nova-tarefa");
+  const btn = qs("#btn-adicionar");
+
   btn.addEventListener("click", () => {
-    // 1) Atualiza estado
-    filtroAtual = btn.dataset.filter;
+    //btn.addEventListener('click', () => {
+    const texto = input.value.trim();
+    if (!texto) {
+      alert("digite uma tarefa");
+      input.focus();
+      return;
+    }
 
-    // 2) Persiste a escolha
-    localStorage.setItem("filtroAtual", filtroAtual);
+    // 1) criar objeto tarefa (regra pura)
+    const nova = criar(texto);
 
-    // 3) Atualiza visual dos botões (.ativo exclusivo)
-    botoesFiltro.forEach((b) => b.classList.remove("ativo"));
-    btn.classList.add("ativo");
+    // 2) atualizar estado imutavelmente
+    lista = [...lista, nova];
 
-    // // 4) Reaplica regras de exibição
-    aplicarFiltroEBusca();
+    // 3) persistir
+    saveLocal(lista);
+
+    // 4) renderizar
+    syncRender();
+
+    // 5) limpar e focar
+    input.value = "";
+    input.focus();
   });
+
+  //Explicação Linha a linha
+  // - const input = qs('#nova-tarefa'); → campo de texto que você já usa no HTML.
+  // - const btn = qs('#btn-adicionar'); → botão de adicionar existente.
+  // - btn.addEventListener('click', ... ) → registra o ouvinte do clique.
+  // - const texto = input.value.trim(); → lê o que foi digitado e remove espaços laterais.
+  // - if (!texto) { ... return; } → validação: evita criar tarefas vazias (UX).
+  // - const nova = criar(texto); → usa regra de negócio pura (sem DOM) para fabricar a tarefa.
+  // - lista = [...lista, nova]; → atualiza imutavelmente (novo array com a tarefa no fim).
+  // - saveLocal(lista); → persiste o novo estado.
+  // - syncRender(); → re-renderiza a lista na tela (mostra a nova tarefa com a sua animação de entrada).
+  // - input.value = ''; input.focus(); → limpa o campo e volta o foco para digitar outra.
+}
+
+// Concluir e Remover tarefas (com delegação de eventos)
+
+// 🎯 Objetivo
+// Ensinar o app.js a reagir quando o usuário:
+// marca uma tarefa como concluída (✔️);
+// remove uma tarefa (🗑️), com animação suave .removendo.
+// E tudo isso sem adicionar um listener para cada <li>.
+
+// 🧠 Lógica — “delegação de eventos”
+
+// Problema
+// Se criássemos um addEventListener para cada <li> ou botão, precisaríamos recriar
+// todos sempre que a lista fosse renderizada de novo — ineficiente.
+
+// Solução
+// Escutamos apenas um elemento-pai (a <ul id="lista-tarefas">) e, quando o clique ocorre:
+// verificamos quem foi clicado (event.target);
+// subimos (.closest('li')) para achar o item da lista;
+// descobrimos o índice dessa <li> dentro da <ul>;
+// aplicamos a ação correta (toggle ou remover).
+
+// 🧩 Estrutura lógica das funções
+// ligarEventosLista()
+//  ├── escuta cliques na <ul>
+//  ├── identifica botão clicado
+//  ├── acha índice da <li>
+//  ├── decide:
+//  │     ├── btn-concluir → toggle()
+//  │     └── btn-remover → animação → remover()
+//  └── salva + renderiza
+
+//Micro-bloco A — Função para ligar eventos
+function ligarEventosLista() {
+  const ul = qs("#lista-tarefas");
+
+  ul.addEventListener("click", (evento) => {
+    const alvo = evento.target; // elemento clicado
+    const li = alvo.closest("li"); // sobe até o <li>
+    if (!li) return; // clique fora? ignora
+
+    const itens = [...ul.querySelectorAll("li")];
+    const indice = itens.indexOf(li); // posição da tarefa
+    if (indice === -1) return;
+
+    // botão concluir
+    if (alvo.classList.contains("btn-concluir")) {
+      const tarefaAtual = lista[indice];
+      const atualizada = { ...tarefaAtual, feita: !tarefaAtual.feita };
+      lista = [
+        ...lista.slice(0, indice),
+        atualizada,
+        ...lista.slice(indice + 1),
+      ];
+
+      saveLocal(lista);
+      syncRender();
+    }
+
+    // botão Remover
+    if (alvo.classList.contains("btn-remover")) {
+      li.classList.add("removendo"); //ativa a animação
+      setTimeout(() => {
+        lista = [...lista.slice(0, indice), ...lista.slice(indice + 1)];
+        saveLocal(lista);
+        syncRender();
+      }, 300);
+    }
+  });
+
+  //Explicação linha a linha
+
+  // | Trecho                                                                         | Explicação                                                                         |
+  // | :----------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
+  // | `const ul = qs('#lista-tarefas');`                                             | Seleciona a `<ul>` onde todas as tarefas vivem.                                    |
+  // | `ul.addEventListener('click', (ev) => { ... })`                                | Cria **um único** ouvinte para todos os cliques nos botões internos.               |
+  // | `const alvo = ev.target;`                                                      | O elemento específico que o usuário clicou.                                        |
+  // | `const li = alvo.closest('li');`                                               | Sobe na árvore DOM até achar o `<li>` correspondente à tarefa.                     |
+  // | `if (!li) return;`                                                             | Se o clique não for dentro de um `<li>`, não faz nada.                             |
+  // | `const itens = [...ul.querySelectorAll('li')];`                                | Cria um array de todas as `<li>` atuais.                                           |
+  // | `const indice = itens.indexOf(li);`                                            | Determina o índice da tarefa clicada.                                              |
+  // | `if (alvo.classList.contains('btn-concluir')) { ... }`                         | Detecta se o botão clicado foi “Concluir”.                                         |
+  // | `const tarefaAtual = lista[indice];`                                           | Recupera a tarefa correspondente no array.                                         |
+  // | `const atualizada = { ...tarefaAtual, feita: !tarefaAtual.feita };`            | Cria nova cópia com o valor `feita` invertido (imutabilidade).                     |
+  // | `lista = [...lista.slice(0, indice), atualizada, ...lista.slice(indice + 1)];` | Substitui a tarefa antiga no array por sua versão atualizada.                      |
+  // | `saveLocal(lista); syncRender();`                                              | Persiste e redesenha.                                                              |
+  // | `if (alvo.classList.contains('btn-remover')) { ... }`                          | Detecta se o botão clicado foi “Remover”.                                          |
+  // | `li.classList.add('removendo');`                                               | Adiciona a classe que aciona a animação de saída (já prevista no seu CSS v3.1).    |
+  // | `setTimeout(..., 300)`                                                         | Espera o término da animação (≈ 0,3 s) antes de realmente remover e re-renderizar. |
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  init();
+  ligarAdicionar(); // ← ativa o botão
+  ligarEventosLista(); // ← ativa concluir/remover
+
+  // Explicação:
+  // DOMContentLoaded garante que os elementos HTML já existem antes de selecioná-los.
+  // Chamamos init() para renderizar as tarefas existentes.
+  // Chamamos ligarAdicionar() para habilitar o botão “Adicionar”.
 });
-
-//5) Evento do campo de busca (reativo)
-//Agora conecte o input da busca:
-
-// Digitação reativa: atualiza termo e reaplica exibição
-
-// document.addEventListener("DOMContentLoaded", () => {
-if (inputBusca) {
-  inputBusca.addEventListener("input", () => {
-    termoBusca = inputBusca.value.trim().toLowerCase();
-    // console.log("Digitando:", termoBusca);
-    aplicarFiltroEBusca();
-  });
-}
-// });
-
-function atualizarContadores() {
-  //No JavaScript, criaremos uma função:
-  // function atualizarContadores() { ... }
-
-  // Ela:
-  // Conta quantos <li> existem no #lista-tarefas;
-  // Conta quantos têm a classe .feita;
-  // Calcula pendentes e atualiza os <span> correspondentes.
-  // Chamaremos atualizarContadores() em cada ponto importante:
-  // - Depois de adicionarTarefa();
-  // - Dentro de carregarTarefas();
-  // - Após salvarTarefas();
-  // - Ao remover ou concluir tarefas.
-
-  //🧠 Lógica da função atualizarContadores()
-  // 1) Capturar a lista
-  // “Pegar todos os <li> da UL #lista-tarefas.”
-  // Pense: “Quero contar quantos itens existem.”
-  // Linha: selecione todos os li de #lista-tarefas.
-  let tarefas = document.querySelectorAll("#lista-tarefas li"); //aqui pegamos todos os <li> dentro de #lista-tarefas.Isso retorna uma NodeList com todos os itens da lista (concluídos e pendentes).
-
-  //2) Calcular o total
-  // “Quantidade de itens na NodeList.”
-  // Pense: “O tamanho da lista é o total.”
-  //Linha: pegue o .length da seleção anterior.
-  let total = tarefas.length; //o total é simplesmente o número de <li> existentes.
-
-  //3) Calcular concluídas
-  //“Contar quantos li têm a classe .feita.”
-  //Pense: “Selecionar #lista-tarefas li.feita e pegar o .length.”
-  //Linha: uma segunda seleção só dos li.feita, e .length.
-  let concluidas = document.querySelectorAll("#lista-tarefas li.feita").length; //seleciona apenas as tarefas com a classe .feita (marcadas como concluídas).
-
-  // 4) Calcular pendentes
-  // “Pendentes = total − concluidas.”
-  // Linha: subtração simples em variável.
-  let pendentes = total - concluidas;
-
-  const spanTotal = document.getElementById("total");
-  const spanPendentes = document.getElementById("pendentes");
-  const spanConcluidas = document.getElementById("concluidas");
-
-  // 5) Atualizar a UI
-  // “Escrever esses números nos elementos de contadores.”
-  // Pense: “Atribuir textContent para #total, #concluidas, #pendentes.”
-  // 3 linhas: cada uma atualiza um textContent com rótulo e número (ex.: "Total: " + total).
-
-  // subistituido (isso):
-
-  // document.getElementById(
-  //   "total"
-  // ).textContent = `Total: = ${total}, `;
-
-  // document.getElementById(
-  //   "concluidas"
-  // ).textContent = `Concluídas: ${concluidas}`;
-
-  // document.getElementById(
-  //   "pendentes"
-  // ).textContent = `Pendentes: ${pendentes}, `;
-  // (por:)
-  spanTotal.textContent = `Total: = ${total}, `;
-  spanPendentes.textContent = `Pendentes: ${pendentes}, `;
-  spanConcluidas.textContent = `Concluídas: ${concluidas}`;
-
-  //lógica da animação (pulse)
-  //“se o número de concluídas aumentou em relação à última atualização, aplicamos a classe .pulse temporariamente”.
-
-  // 1️⃣ Se o número de concluídas aumentou em relação à última atualização
-  if (concluidas > ultimoConcluidas) {
-    // 2️⃣ Adiciona a classe de animação
-    spanConcluidas.classList.add("pulse");
-
-    // 3️⃣ Remove a classe depois de 400ms para permitir repetir a animação
-    setTimeout(() => {
-      spanConcluidas.classList.remove("pulse");
-    }, 400);
-  }
-
-  console.log("Concluídas:", concluidas, "Último valor:", ultimoConcluidas);
-
-  // 4️⃣ Atualiza o valor de referência para a próxima comparação
-  ultimoConcluidas = concluidas;
-
-  // Aplicar classes condicionais
-  // aqui entra o novo aprendizado:
-  // usar .classList.toggle(classe, condição),
-  // que adiciona a classe se a condição for verdadeira e a remove se for falsa.
-
-  //essa linha sozinha já controla o estado visual conforme os números mudam.
-  spanPendentes.classList.toggle("ativo", pendentes > 0);
-  spanPendentes.classList.toggle("zerado", pendentes === 0);
-  spanConcluidas.classList.toggle("positivo", concluidas > 0);
-}
-
-function ativarEdicao(spanTexto, li) {
-  spanTexto.addEventListener("dblclick", () => {
-    const textoAtual = spanTexto.textContent;
-    const inputEdicao = document.createElement("input");
-    inputEdicao.type = "text";
-    inputEdicao.className = "input-edicao";
-    inputEdicao.value = textoAtual;
-
-    li.replaceChild(inputEdicao, spanTexto);
-    inputEdicao.focus();
-    inputEdicao.setSelectionRange(0, inputEdicao.value.length);
-
-    function salvarEdicao() {
-      if (!li.contains(inputEdicao)) return;
-      const novoTexto = inputEdicao.value.trim() || textoAtual;
-
-      const novoSpan = document.createElement("span");
-      novoSpan.textContent = novoTexto;
-
-      // 🟢 reaplica a função aqui, chamando ela mesma
-      ativarEdicao(novoSpan, li);
-
-      li.replaceChild(novoSpan, inputEdicao);
-      salvarTarefas();
-    }
-
-    inputEdicao.addEventListener("blur", salvarEdicao);
-    inputEdicao.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        salvarEdicao();
-      }
-    });
-  });
-}
-
-function adicionarTarefa() {
-  // objetivo da função
-  // Quando o usuário digitar uma tarefa e clicar em “Adicionar”, queremos:
-  // Ler o texto digitado no input.
-  let textoTarefa = document.getElementById("nova-tarefa").value.trim();
-
-  // Validar se o campo não está vazio.
-  if (textoTarefa === "") {
-    alert("Digite uma tarefa!");
-    return;
-  }
-
-  // Criar um novo item (<li>) na lista (#lista-tarefas).
-  //let novaTarefa = document.createElement("li");
-  //novaTarefa.innerText = textoTarefa;
-  //novaTarefa.textContent = textoTarefa; //textContent é levemente mais performático. que innerText
-
-  // document.getElementById("lista-tarefas").appendChild(novaTarefa);
-  //console.log(novaTarefa);
-  let li = document.createElement("li");
-  // 🔽 habilita transições
-  li.classList.add("fade");
-
-  // Incluir botões de “Concluir” e “Remover” dentro de cada <li>.
-  // objetivo
-  // Cada <li> da lista deve conter dois botões:
-  // ✅ Concluir: alterna o estado da tarefa (normal ↔ concluída).
-  // ❌ Remover: apaga a tarefa da lista.
-  // Esses botões serão criados junto com o <li>, cada vez que uma nova tarefa for adicionada.
-  //queremos que o item final fique assim:
-  // <li>
-  //     <span>Estudar JavaScript</span>
-  //     <div>
-  //         <button class="btn-concluir">Concluir</button>
-  //         <button class="btn-remover">Remover</button>
-  //     </div>
-  // </li>
-  // passo 1 — criar os elementos
-  // pensamento lógico:
-
-  // 1️⃣ criar um <span> para conter o texto
-  let spanTexto = document.createElement("span");
-  spanTexto.textContent = textoTarefa;
-
-  //Editar a tarefa
-  //1) Escutar o duplo clique no texto
-  //Ouve o duplo clique no texto da tarefa
-  //=== Trecho substituido pela funão ativarEdição() ===
-  // spanTexto.addEventListener('dblclick', () => {
-  //     console.log("Duplo clique detectado");
-
-  //     // 2) Guarda o texto atual para colocar dentro do input
-  //     const textoAtual = spanTexto.textContent;
-  //     //3) Criar o <input> de edição
-  //     const inputEdicao = document.createElement('input');
-  //     inputEdicao.type='text';
-  //     inputEdicao.className = 'input-edicao';
-  //     inputEdicao.value = textoAtual
-
-  //     // 4) Substitui o <span> pelo <input> dentro do <li>
-  //     li.replaceChild(inputEdicao, spanTexto);
-
-  //     //5) Dá foco e seleciona o texto para facilitar a edição
-  //     inputEdicao.focus();
-  //     inputEdicao.setSelectionRange(0, inputEdicao.value.length)
-
-  //     // 🧠 Objetivo
-
-  //     // dar continuidade ao código  dentro do dblclick, adicionando:
-  //     // - a detecção das ações de salvar (Enter / blur),
-  //     // - a recriação do <span> com o novo texto,
-  //     // - a atualização do localStorage.
-
-  //     // 1.  Ouvir quando o usuário pressiona Enter (keydown).
-  //     // 2.  Ouvir quando o campo perde o foco (blur).
-  //     // 3. Função interna de salvar que:
-  //     //     - Lê o texto novo do input.
-  //     //     - Valida se não está vazio.
-  //     //     - Cria um novo <span> com o novo texto.
-  //     //     - Reanexa o evento dblclick nesse novo span.
-  //     //     - Substitui o <input> pelo <span>.
-  //     //     - Chama salvarTarefas().
-
-  //     // 6️) Função interna para salvar a edição
-  //     function salvarEdicao(){
-  //         // 🔒 Evita duplicação de execução
-  //         if (!li.contains(inputEdicao)) return;
-
-  //         const novoTexto = inputEdicao.value.trim();
-  //         // Se estiver vazio, restaura o texto antigo
-  //         // if(novoTexto === ""){
-  //         //     inputEdicao.value = textoAtual;
-  //         // }
-  //         const textoFinal = novoTexto === "" ? textoAtual : novoTexto;
-
-  //         // Cria novo <span> com o texto final
-  //         const novaSpan = document.createElement('span');
-  //         // novaSpan.textContent = novoTexto === "" ? textoAtual : novoTexto;
-  //         novaSpan.textContent = textoFinal;
-
-  //         // Reanexa o mesmo evento de edição
-  //         novaSpan.addEventListener("dblclick", arguments.callee);
-
-  //         // Substitui o input pelo novo span
-  //         li.replaceChild(novaSpan, inputEdicao);
-
-  //         // Salva no localStorage
-  //         salvarTarefas();
-  //     }
-
-  //     // 7️) Salva automaticamente ao perder o foco
-  //     inputEdicao.addEventListener("blur", salvarEdicao);
-
-  //     // 8️) Salva ao pressionar Enter
-  //     inputEdicao.addEventListener("keydown", (event) => {
-  //         if (event.key === "Enter"){
-  //             event.preventDefault(); // Evita blur duplicado
-  //             salvarEdicao();
-  //         }
-  //     });
-
-  //     // ✅ Fluxo completo dentro do dblclick
-  //     // quando o usuário:
-
-  //     // dá duplo clique → <span> vira <input>,
-  //     // edita → pressiona Enter ou sai do campo,
-  //     // o texto novo substitui o antigo e o localStorage é atualizado.
-
-  // });
-
-  // 2️⃣ criar um <div> para abrigar os botões
-  //=== Trecho substituido pela funão  ativarEdição() ===
-  // O que isso faz
-  // a função ativarEdicao() define todo o comportamento de edição,
-  // e você pode reaplicá-la sempre que recriar um <span> novo,
-  // garantindo que o duplo clique funcione infinitas vezes sem erro.
-
-  ativarEdicao(spanTexto, li);
-
-  let divBotoes = document.createElement("div");
-  divBotoes.classList.add("btn-container");
-
-  // 3️⃣ criar o botão concluir
-  let botaoConcluir = document.createElement("button");
-  botaoConcluir.classList.add("btn-concluir");
-  botaoConcluir.textContent = "Concluir";
-
-  // passo 1 — adicionar o evento ao botão “Concluir”
-  // Quando o botão for clicado:
-  // Precisamos encontrar o elemento <li> onde ele está.
-  // Alternar a classe .feita.
-
-  // Ao clicar no botão “Concluir”, alterna o estado da tarefa
-  botaoConcluir.addEventListener("click", () => {
-    // 'toggle' adiciona ou remove a classe 'feita' no elemento <li>
-    li.classList.toggle("feita");
-
-    //chamada da função atualizarContadores()
-    atualizarContadores();
-  });
-
-  // 4️⃣ criar o botão remover
-  let botaoRemover = document.createElement("button");
-  botaoRemover.classList.add("btn-remover");
-  botaoRemover.textContent = "Remover";
-
-  // passo 2 — adicionar o evento ao botão “Remover”
-  //     raciocínio
-  //     Quando o botão for clicado:
-  //     Localizamos o <li> (o pai do botão).
-  //     Removemos esse <li> da lista.
-
-  // Ao clicar no botão “Remover”, apaga a tarefa da lista
-  botaoRemover.addEventListener("click", () => {
-    // Remove completamente o elemento <li> da página
-    // li.remove(); v3.0
-    // anima antes de remover v3.1
-    li.classList.add("removendo");
-    setTimeout(() => li.remove(), 350);
-
-    //chamada da função atualizarContadores()
-    atualizarContadores();
-  });
-
-  // 5️⃣ adicionar os dois botões dentro do <div>
-  divBotoes.appendChild(botaoConcluir);
-  divBotoes.appendChild(botaoRemover);
-
-  // 6️⃣ anexar o <span> e o <div> dentro do <li>
-  li.appendChild(spanTexto);
-  li.appendChild(divBotoes);
-
-  // Exibir o item na tela.
-  document.getElementById("lista-tarefas").appendChild(li);
-
-  // Adiciona animação de entrada
-  li.classList.add("nova");
-  setTimeout(() => li.classList.remove("nova"), 400);
-  // A classe .nova ativa uma pequena animação CSS (transform + opacity), e é removida após 400ms para não interferir depois.
-
-  //Chamada da função atualizarContadores();
-  atualizarContadores();
-
-  // 1️⃣ Salvamento automático ao adicionar tarefa
-  // Dentro da sua função adicionarTarefa() — logo depois de montar e inserir o <li> na lista —
-  // adicione uma chamada simples:
-  salvarTarefas();
-  //🔹 Assim, toda vez que o usuário adiciona uma nova tarefa, ela já é gravada no localStorage.
-
-  aplicarFiltroEBusca();
-
-  //limpa o input
-  document.getElementById("nova-tarefa").value = "";
-
-  // Após adicionar uma tarefa, devolvemos o foco ao campo de input:
-  document.getElementById("nova-tarefa").focus();
-
-  // // console.log(li);
-}
-
-// localStorage
-//     o localStorage é uma pequena base de dados embutida no navegador do usuário.
-//     ela armazena pares chave → valor, como se fossem pequenas variáveis permanentes.
-
-//     regras importantes:
-
-//     os dados ficam salvos mesmo após fechar o navegador;
-//     tudo é armazenado como texto (string);
-//     podemos converter listas (arrays) para texto com JSON.stringify() e depois reconverter com JSON.parse().
-
-// Queremos que salvarTarefas():
-
-// pegue todas as tarefas exibidas na tela (a lista dentro do <ul>),
-// crie uma lista com o texto e o estado de cada uma (feita ou não),
-// salve essa lista no localStorage em formato de texto.
-
-// Pensamento lógico
-
-// Imagine que você tem na tela:
-//     Estudar JS        → não feita
-//     Ler documentação  → feita
-//     Treinar lógica    → não feita
-
-// A função precisa transformar isso em algo assim:
-
-//     [
-// //     { texto: "Estudar JS", feita: false },
-// //     { texto: "Ler documentação", feita: true },
-// //     { texto: "Treinar lógica", feita: false }
-//     ]
-
-// Fluxo passo a passo da função
-
-// 1️⃣ Pegar a <ul> onde estão todas as tarefas (id="lista-tarefas").
-// 2️⃣ Pegar todos os <li> dentro dela.
-// 3️⃣ Para cada <li>, extrair:
-
-// o texto (span.textContent);
-
-// se possui a classe .feita.
-// 4️⃣ Montar uma lista (array) com esses dados.
-// 5️⃣ Converter em texto (JSON.stringify).
-// 6️⃣ Salvar no localStorage (localStorage.setItem("tarefas", ...)).
-
-function salvarTarefas() {
-  // 1️⃣ Seleciona todos os itens (li) dentro da lista de tarefas
-  let itens = document.querySelectorAll("#lista-tarefas li");
-  // 2️⃣ Cria um array vazio que vai armazenar os dados das tarefas
-  let tarefas = [];
-
-  // 3️⃣ Percorre cada item da lista e extrai as informações importantes
-  itens.forEach((li) => {
-    // Captura o texto da tarefa (dentro do <span>)
-    let texto = li.querySelector("span").textContent;
-    // Verifica se a tarefa possui a classe 'feita'
-    let feita = li.classList.contains("feita");
-    // Adiciona o objeto representando essa tarefa ao array
-    tarefas.push({ texto: texto, feita: feita });
-  });
-
-  // 4️⃣ Converte o array em texto JSON
-  let textoJSON = JSON.stringify(tarefas);
-
-  // 5️⃣ Salva o texto JSON no localStorage
-  localStorage.setItem("tarefas", textoJSON);
-  //Chamada da função atualizarContadores
-  atualizarContadores();
-
-  //   console.log("tarefa Salvas:", tarefas);
-}
-
-// A função carregarTarefas() deve:
-
-// objetivo
-
-// Ler as tarefas salvas no localStorage.
-// Converter o texto JSON de volta em um array.
-// Reconstruir a lista no DOM (criando <li>s, <span>s e botões).
-// Reaplicar o estado “feita” onde for necessário.
-
-// Resumo mental do fluxo
-
-// [Início do site]
-//       ↓
-// Ler localStorage ("tarefas")
-//       ↓
-// Se existir conteúdo:
-//    → converter para array
-//    → reconstruir os <li>
-//    → aplicar classes e eventos
-
-function carregarTarefas() {
-  //1️⃣ Verificar se há dados no localStorage
-  let tarefasJSON = localStorage.getItem("tarefas");
-
-  // Se não houver nada salvo, encerra a função
-  if (tarefasJSON === null) {
-    return;
-  }
-
-  // 2️⃣ Converter o texto em um array de objetos
-  // Converte o texto JSON de volta para um array de objetos
-  let tarefas = JSON.parse(tarefasJSON);
-
-  // 3️⃣ Limpar a lista atual
-  // Limpa a lista antes de reconstruir (evita duplicações)
-  let lista = document.getElementById("lista-tarefas");
-  lista.innerHTML = "";
-  //➡️ Isso garante que, ao recarregar, a lista comece do zero antes de adicionar os itens.
-
-  // 4️⃣ Recriar cada tarefa
-  // Recria cada tarefa salva no localStorage
-  tarefas.forEach((tarefa) => {
-    // Cria o <li>
-    let li = document.createElement("li");
-    // 🔽 habilita transições para itens carregados do storage
-    li.classList.add("fade");
-
-    // Se a tarefa estava concluída, reaplica a class
-    if (tarefa.feita) {
-      li.classList.add("feita");
-    }
-
-    // Cria o texto
-    let spanTexto = document.createElement("span");
-    spanTexto.textContent = tarefa.texto;
-
-    //Editar a tarefa
-    //1) Escutar o duplo clique no texto
-    //Ouve o duplo clique no texto da tarefa
-    //=== Trecho substituido pela funão  ativarEdição() ===
-    // spanTexto.addEventListener('dblclick', () => {
-    // console.log("Duplo clique detectado");
-
-    //     // 2) Guarda o texto atual para colocar dentro do input
-    //     const textoAtual = spanTexto.textContent;
-    //     //3) Criar o <input> de edição
-    //     const inputEdicao = document.createElement('input');
-    //     inputEdicao.type='text';
-    //     inputEdicao.className = 'input-edicao';
-    //     inputEdicao.value = textoAtual
-
-    //     // 4) Substitui o <span> pelo <input> dentro do <li>
-    //     li.replaceChild(inputEdicao, spanTexto);
-
-    //     //5) Dá foco e seleciona o texto para facilitar a edição
-    //     inputEdicao.focus();
-    //     inputEdicao.setSelectionRange(0, inputEdicao.value.length)
-
-    //     // 🧠 Objetivo
-
-    //     // dar continuidade ao código  dentro do dblclick, adicionando:
-    //     // - a detecção das ações de salvar (Enter / blur),
-    //     // - a recriação do <span> com o novo texto,
-    //     // - a atualização do localStorage.
-
-    //     // 1.  Ouvir quando o usuário pressiona Enter (keydown).
-    //     // 2.  Ouvir quando o campo perde o foco (blur).
-    //     // 3. Função interna de salvar que:
-    //     //     - Lê o texto novo do input.
-    //     //     - Valida se não está vazio.
-    //     //     - Cria um novo <span> com o novo texto.
-    //     //     - Reanexa o evento dblclick nesse novo span.
-    //     //     - Substitui o <input> pelo <span>.
-    //     //     - Chama salvarTarefas().
-
-    //     // 6️) Função interna para salvar a edição
-    //     function salvarEdicao(){
-    //         // 🔒 Evita duplicação de execução
-    //         if (!li.contains(inputEdicao)) return;
-
-    //         const novoTexto = inputEdicao.value.trim();
-    //         // Se estiver vazio, restaura o texto antigo
-    //         // if(novoTexto === ""){
-    //         //     inputEdicao.value = textoAtual;
-    //         // }
-    //         const textoFinal = novoTexto === "" ? textoAtual : novoTexto;
-
-    //         // Cria novo <span> com o texto final
-    //         const novaSpan = document.createElement('span');
-    //         novaSpan.textContent = textoFinal;
-
-    //         // Reanexa o mesmo evento de edição
-    //         novaSpan.addEventListener("dblclick", arguments.callee);
-
-    //         // Substitui o input pelo novo span
-    //         li.replaceChild(novaSpan, inputEdicao);
-
-    //         // Salva no localStorage
-    //         salvarTarefas();
-    //     }
-
-    //     // 7️) Salva automaticamente ao perder o foco
-    //     inputEdicao.addEventListener("blur", salvarEdicao);
-
-    //     // 8️) Salva ao pressionar Enter
-    //     inputEdicao.addEventListener("keydown", (event) => {
-    //         if (event.key === "Enter"){
-    //             event.preventDefault(); // Evita blur duplicado
-    //             salvarEdicao();
-    //         }
-    //     });
-
-    //     // ✅ Fluxo completo dentro do dblclick
-    //     // quando o usuário:
-
-    //     // dá duplo clique → <span> vira <input>,
-    //     // edita → pressiona Enter ou sai do campo,
-    //     // o texto novo substitui o antigo e o localStorage é atualizado.
-    // });
-    //=== Trecho substituido pela funão  ativarEdição() ===
-    // O que isso faz
-    // a função ativarEdicao() define todo o comportamento de edição,
-    // e você pode reaplicá-la sempre que recriar um <span> novo,
-    // garantindo que o duplo clique funcione infinitas vezes sem erro.
-    ativarEdicao(spanTexto, li);
-
-    //5️⃣ Criar os botões
-    // Cria o container dos botões
-    let divBotoes = document.createElement("div");
-    divBotoes.classList.add("btn-container");
-
-    // Cria o botão concluir
-    let botaoConcluir = document.createElement("button");
-    botaoConcluir.classList.add("btn-concluir");
-    botaoConcluir.textContent = "Concluir";
-
-    // Cria o botão remover
-
-    let botaoRemover = document.createElement("button");
-    botaoRemover.classList.add("btn-remover");
-    botaoRemover.textContent = "Remover";
-
-    //6️⃣ Adicionar os eventos novamente
-    // Eventos de clique nos botões
-    botaoConcluir.addEventListener("click", () => {
-      li.classList.toggle("feita");
-      salvarTarefas(); // salva o novo estado
-    });
-
-    botaoRemover.addEventListener("click", () => {
-      li.remove();
-      salvarTarefas(); // salva o novo estado após a remoção
-
-      // isso garante que as tarefas recarregadas continuem interativas e sincronizadas com o localStorage.
-    });
-
-    //7️⃣ Montar e inserir o item completo
-    //monta a estrutura final
-    divBotoes.appendChild(botaoConcluir);
-    divBotoes.appendChild(botaoRemover);
-    li.appendChild(spanTexto);
-    li.appendChild(divBotoes);
-    // Adiciona o item na lista
-    lista.appendChild(li);
-
-    // ✅ agora, a função carregarTarefas() está pronta.
-    // Ela:
-    // 1. o que está salvo no navegador,
-    // 2. onstrói a lista de forma idêntica,
-    // 3. plica os eventos e estados,
-    // 4. tém tudo sincronizado.
-  });
-  //chamada da função atualizarContadores()
-  atualizarContadores();
-  aplicarFiltroEBusca();
-
-  //   console.log(tarefas);
-}
-
-function aplicarFiltroEBusca() {
-  //Selecionar todas as tarefas
-  const tarefas = document.querySelectorAll("#lista-tarefas li");
-  //agora tarefas é uma NodeList com todos os <li> que representam as tarefas salvas.
-  // iremos percorrer uma a uma usando forEach.
-  // ler dados de cada tarefa
-  // para cada <li>, precisamos:
-  // identificar se ela está concluída (possui .feita);
-  // pegar o texto da tarefa (geralmente dentro do <span>).
-  tarefas.forEach((tarefa) => {
-    const texto = tarefa.querySelector("span").textContent.toLowerCase();
-    const concluida = tarefa.classList.contains("feita");
-    // console.log(texto, concluida);
-
-    // aplicar o filtro lógico
-    // agora, precisamos decidir se a tarefa passa no filtro atual.
-    // vamos criar uma variável chamada passaFiltro:
-    let passaFiltro = false;
-    if (filtroAtual === "todas") {
-      passaFiltro = true;
-    } else if (filtroAtual === "pendentes" && !concluida) {
-      passaFiltro = true;
-    } else if (filtroAtual === "concluidas" && concluida) {
-      passaFiltro = true;
-    }
-    // console.log(texto, filtroAtual, passaFiltro);
-
-    // aplicar a busca textual
-    // em seguida, verificamos se o texto da tarefa contém o termo digitado:
-    const passaBusca = texto.includes(termoBusca);
-    // agora temos dois critérios booleanos:
-    // passaFiltro (baseado em concluída/pendente)
-    // passaBusca (baseado no nome digitado)
-
-    // combinar condições e decidir exibição
-    // a tarefa será mostrada somente se passar em ambos os testes: v3.0
-
-    // if (passaFiltro && passaBusca) {
-    //   tarefa.style.display = "";
-    // } else {
-    //   tarefa.style.display = "none";
-    // }
-    const mostrar = passaFiltro && passaBusca;
-    // Alterna apenas classes; CSS cuidará do efeito v 3.1
-    tarefa.classList.toggle("oculta", !mostrar);
-  });
-
-  atualizarContadores();
-}
-
-// integração final
-
-// 1. Conectar o salvarTarefas() às três ações principais do app:
-// 2. Adicionar tarefa
-// 3. Concluir tarefa
-// 4. Remover tarefa
-// 5. E garantir que o carregamento (carregarTarefas()) ocorra automaticamente ao abrir a página.
-window.onload = carregarTarefas;
