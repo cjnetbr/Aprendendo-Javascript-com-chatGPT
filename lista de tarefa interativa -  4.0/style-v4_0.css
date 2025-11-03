@@ -1,0 +1,11 @@
+#lista-tarefas li {
+  gap: 0.5rem;
+}
+.editando {
+  width: 100%;
+  padding: 6px;
+  font-size: inherit;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fffdf7;
+}

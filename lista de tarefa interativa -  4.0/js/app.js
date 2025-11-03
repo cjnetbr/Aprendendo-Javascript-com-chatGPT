@@ -2,7 +2,8 @@
 
 import { loadLocal, saveLocal } from "./modules/storage.js";
 import { criar } from "./modules/tarefas.js";
-import { qs, renderLista } from "./modules/ui.js";
+import { qs, renderLista, setCallbacks } from "./modules/ui.js";
+import { editar } from "./modules/tarefas.js";
 
 // Linha a linha
 // import { loadLocal, saveLocal } ... → trará as funções de persistência (ler/salvar).
@@ -25,6 +26,28 @@ function syncRender() {
 // - renderLista(ul, lista); → delega ao módulo de UI a montagem dos <li>.
 
 //C) Init — carregar do storage e renderizar (micro-bloco 3)
+
+setCallbacks({
+  onEditar: (indice, novoTexto) => {
+    const tarefaAntiga = lista[indice];
+    const tarefaNova = editar(tarefaAntiga, novoTexto);
+    lista = [...lista.slice(0, indice), tarefaNova, ...lista.slice(indice + 1)];
+    saveLocal(lista);
+    syncRender();
+  },
+  onCancelarEdicao: () => {
+    syncRender();
+  },
+  // explicação linha a linha
+  // trecho	                              explicação
+  // setCallbacks({...})	                envia para ui.js uma função que será chamada quando o usuário editar algo.
+  // onEditar(indice, novoTexto)	        recebe os dados vindos da UI.
+  // const tarefaAntiga = lista[indice]	  pega a tarefa que será editada.
+  // const tarefaNova = editar(...)	      usa o módulo tarefas.js (função pura) para atualizar o texto.
+  // lista = [...lista.slice(0, indice), tarefaNova, ...lista.slice(indice + 1)]	substitui imutavelmente a tarefa no array.
+  // saveLocal(lista)	                    persiste no storage.
+  // syncRender()	                        re-desenha a lista.
+});
 
 function init() {
   // 1) Carrega o storage

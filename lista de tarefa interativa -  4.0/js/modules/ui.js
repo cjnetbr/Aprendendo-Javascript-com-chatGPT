@@ -1,6 +1,20 @@
 // Módulo de UI (renderização da lista)
 // O que a UI deve fazer (e o que não deve)
 
+//import { saveLocal } from "./storage"; <-- rremovido pois não possuia a extenção .js
+import { loadLocal, saveLocal } from "./storage.js";
+
+// Sistema de callbacks entre UI e App
+let callbacks = {};
+export function setCallbacks(novosCallbacks) {
+  callbacks = { ...callbacks, ...novosCallbacks };
+  // explicação
+  // let callbacks = {} → armazena funções vindas do app.js;
+  // setCallbacks({...}) → função pública para registrar novas callbacks;
+  // usamos o spread (...) para permitir adicionar mais de uma no futuro
+  // (ex.: onEditar, onRemover, onConcluir, etc.).
+}
+
 // Faz: criar elementos do DOM, aplicar classes, inserir na <ul id="lista-tarefas">, e disparar
 // animações suaves já definidas no seu CSS (.fade, .nova, .removendo, .feita).
 
@@ -42,6 +56,70 @@ export function criarItemDOM(tarefa) {
   const span = document.createElement("span");
   span.classList.add("texto");
   span.textContent = tarefa.texto; // texto visível da tarefa
+
+  // DETECTAR DUPLO-CLIQUE PARA EDITAR
+  span.addEventListener("dblclick", () => {
+    // 🔹 1. descobrir qual tarefa está sendo editada
+    const li = span.closest("li");
+    const ul = li.parentElement;
+    const itens = [...ul.querySelectorAll("li")];
+    const indice = itens.indexOf(li);
+    // | Linha                            | Explicação                                                               |
+    // | -------------------------------- | ------------------------------------------------------------------------ |
+    // | `span.closest('li')`             | sobe na árvore DOM até encontrar o `<li>` que contém o texto.            |
+    // | `li.parentElement`               | retorna a `<ul>` da lista.                                               |
+    // | `[...ul.querySelectorAll('li')]` | cria um array com todos os `<li>` da lista.                              |
+    // | `itens.indexOf(li)`              | descobre a posição (índice) do `<li>` atual dentro da `<ul>`.            |
+    // | `indice`                         | variável local, disponível para uso nos callbacks (`salvarEdicao`, etc). |
+
+    //CRIAR O CAMPO INPUT
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = tarefa.texto;
+    input.classList.add("editando");
+
+    //SUBSTITUIR O SPAN PELO INPUT
+    li.replaceChild(input, span);
+
+    //FOCAR E SELECIONAR O TEXTO
+    input.focus();
+    input.select();
+
+    //CONTROLAR TECLAS E SAÍDA DE CAMPOS
+    input.addEventListener("keydown", (ev) => {
+      //ENTER -> salvar
+      if (ev.key === "Enter") {
+        salvaEdicao();
+      }
+
+      //ESC -> cancelar
+      if (ev.key === "Escape") {
+        cancelaEdicao();
+      }
+
+      //BLUR -> salvar altomaticamente
+      input.addEventListener("blur", salvaEdicao);
+    });
+
+    function salvaEdicao() {
+      const novoTexto = input.value.trim();
+      if (callbacks.onEditar) {
+        callbacks.onEditar(indice, novoTexto);
+      }
+      // explicação
+      // callbacks.onEditar → verifica se o app.js registrou a função.
+      // onEditar(indice, novoTexto) → o ui.js envia a intenção (“editar tarefa X para Y”)
+      // e não se preocupa em salvar nem renderizar — o app.js faz isso.
+      console.log(indice, novoTexto);
+    }
+
+    function cancelaEdicao() {
+      //Volta a lista original sem alterar dados
+      if (callbacks.onCancelarEdicao) {
+        callbacks.onCancelarEdicao();
+      }
+    }
+  });
 
   const divBotoes = document.createElement("div");
   divBotoes.classList.add("btn-container"); // posiciona botões à direita
