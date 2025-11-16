@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lista de Tarefas Interativa</title>
+    <link rel="stylesheet" href="./style-v2_1.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header>
+        <h1>Lista de Tarefas Interativa - 5.0</h1>
+      </header>
+      <!-- Campo de entrada e botão de adicionar -->
+      <div class="input-group">
+        <input
+          type="text"
+          id="nova-tarefa"
+          placeholder="Digite uma nova tarefa"
+        />
+        <!-- <button onclick="adicionarTarefa()" id="btn-adicionar"> até a V3.1-->
+        <button id="btn-adicionar">Adicionar</button>
+      </div>
+
+      <!-- Filtro de vusca até a V4.0
+      <div class="filtros">
+        <div class="botoes-filtro">
+          <button data-filter="todas" class="ativo">Todas</button>
+          <button data-filter="pendentes">Pendentes</button>
+          <button data-filter="concluidas">Concluídas</button>
+        </div>
+        <input type="text" id="busca" placeholder="Buscar tarefa..." />
+      </div>
+      -->
+      <!-- Filtro de busca  V5.0 -->
+      <div id="painel-stats">
+        <div class="stats">
+          <span id="st-total"></span>
+          <span id="st-concluidas"></span>
+          <span id="st-pendentes"></span>
+        </div>
+
+        <div id="st-progresso">
+          <div id="st-barra"></div>
+        </div>
+      </div>
+      <div id="filtros" class="botoes-filtro">
+        <button data-filtro="todas" class="btn-filtro ativo">Todas</button>
+        <button data-filtro="pendentes" class="btn-filtro">Pendentes</button>
+        <button data-filtro="concluidas" class="btn-filtro">Concluídas</button>
+      </div>
+
+      <!-- Lista de tarefas -->
+
+      <ul id="lista-tarefas"></ul>
+    </main>
+
+    <!-- <script src="app.js"></script>  atá a V3.1-->
+    <script type="module" src="./js/app.js"></script>
+    <!-- (V4.0) Etapa 4.0.1 — Habilitar ES Modules (sem mudar comportamento) -->
+  </body>
+</html>

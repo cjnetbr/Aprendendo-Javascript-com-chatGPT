@@ -1,0 +1,113 @@
+/* ================================
+   v5.0 — PAINEL DE ESTATÍSTICAS
+   ================================ */
+
+#painel-stats {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  background-color: var(--card-bg);
+  border-radius: 0.5rem;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 2px 6px;
+}
+
+#painel-stats .stats {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+}
+
+#painel-stats span {
+  font-size: 14px;
+  color: #333;
+}
+
+/* ---------- Barra de Progresso ---------- */
+
+#st-progresso {
+  position: relative;
+  width: 100%;
+  height: 10px;
+  background: #e4e4e4;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+#st-barra {
+  height: 100%;
+  width: 0%; /* atualizado via JS */
+  background: #4caf50;
+  transition: width 0.4s ease;
+}
+
+/* ================================
+   v5.0 — BOTÕES DE FILTRO
+   ================================ */
+
+#filtros {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0 20px 0;
+}
+
+.btn-filtro {
+  padding: 6px 14px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  background: #ffffff;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  font-family: Arial, sans-serif;
+}
+
+/* Hover geral */
+.btn-filtro:hover {
+  background: #f4f4f4;
+  border-color: #bbb;
+}
+
+/* Botão ativo do filtro */
+.btn-filtro.ativo {
+  background: #2b7cff; /* azul profissional */
+  border-color: #1a5ecc;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+/* Suavidade de clique */
+.btn-filtro:active {
+  transform: scale(0.96);
+}
+
+/* animação suave ao trocar o filtro */
+#lista-tarefas li {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Torna responsivo */
+@media (max-width: 480px) {
+  #filtros {
+    flex-direction: column;
+  }
+}
